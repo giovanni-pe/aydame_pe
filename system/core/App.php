@@ -1,10 +1,6 @@
 <?php
-// system/core/App.php
+// system/core/App.php (corregido)
 
-/**
- * Main Application Class
- * Handles routing and dispatching
- */
 class App {
     protected $controller = 'Home';
     protected $method = 'index';
@@ -13,10 +9,20 @@ class App {
     public function __construct() {
         $url = $this->parseUrl();
         
-        // Check if controller exists
-        if (file_exists('../app/controllers/' . ucfirst($url[0]) . 'Controller.php')) {
-            $this->controller = ucfirst($url[0]);
+        // Manejar rutas especiales
+        if (empty($url[0])) {
+            $this->controller = 'Home';
+            $this->method = 'index';
+        } elseif ($url[0] === 'dashboard') {
+            $this->controller = 'Dashboard';
+            $this->method = 'index';
             unset($url[0]);
+        } else {
+            // Check if controller exists
+            if (file_exists('../app/controllers/' . ucfirst($url[0]) . 'Controller.php')) {
+                $this->controller = ucfirst($url[0]);
+                unset($url[0]);
+            }
         }
         
         // Include the controller
@@ -41,11 +47,6 @@ class App {
         call_user_func_array([$this->controller, $this->method], $this->params);
     }
     
-    /**
-     * Parse URL into segments
-     * 
-     * @return array URL segments
-     */
     protected function parseUrl() {
         if (isset($_GET['url'])) {
             $url = rtrim($_GET['url'], '/');
@@ -53,6 +54,6 @@ class App {
             return explode('/', $url);
         }
         
-        return ['home'];
+        return [];
     }
 }

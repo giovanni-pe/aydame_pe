@@ -1,0 +1,40 @@
+
+Options -Indexes
+RewriteEngine On
+
+# Permitir acceso a archivos estáticos
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^.*$ - [L]
+
+# Permitir acceso a directorios que existen
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [L]
+
+# Redirigir todo lo demás a index.php
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Configuraciones de seguridad
+<Files "*.php">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Prevenir acceso directo a archivos de configuración
+<Files "config.php">
+    Order deny,allow
+    Deny from all
+</Files>
+
+# Cabeceras de seguridad
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Configuración para Apache 2.4+
+<IfModule mod_authz_core.c>
+    <RequireAll>
+        Require all granted
+    </RequireAll>
+</IfModule>
